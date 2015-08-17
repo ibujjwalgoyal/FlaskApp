@@ -1,6 +1,10 @@
-from flask import Flask, render_template, json, request,redirect,session,jsonify
+from flask import Flask, render_template, json, request,redirect,session,jsonify, flash
 from flask.ext.mysql import MySQL
 from werkzeug import generate_password_hash, check_password_hash
+import os
+
+# Default setting
+pageLimit = 2
 
 mysql = MySQL()
 app = Flask(__name__)
@@ -16,11 +20,22 @@ mysql.init_app(app)
 
 @app.route('/')
 def main():
-    return render_template('index.html')
+	if session.get('user'):
+		return render_template('userHome.html')
+	else:
+		return render_template('index.html')
+
+@app.route('/upload', methods=['GET', 'POST'])
+def upload():
+    if request.method == 'POST':
+        file = request.files['file']
 
 @app.route('/showSignUp')
 def showSignUp():
-    return render_template('signup.html')
+	if session.get('user'):
+		return render_template('userHome.html')
+	else:
+		return render_template('signup.html')
 
 @app.route('/showAddWish')
 def showAddWish():
@@ -46,30 +61,30 @@ def logout():
     session.pop('user',None)
     return redirect('/')
 
-@app.route('/deleteWish',methods=['POST'])
+@app.route('/deleteWish', methods = ['POST'])
 def deleteWish():
-    try:
-        if session.get('user'):
-            _id = request.form['id']
-            _user = session.get('user')
+	try:
+		if session.get('user'):
+			_id = request.form['id']
+			_user_id = session.get('user')
 
-            conn = mysql.connect()
-            cursor = conn.cursor()
-            cursor.callproc('sp_deleteWish',(_id,_user))
-            result = cursor.fetchall()
+			conn = mysql.connect()
+			cursor = conn.cursor()
+			cursor.callproc('sp_deleteWish', (_id, _user_id))
+			result = cursor.fetchall()
 
-            if len(result) is 0:
-                conn.commit()
-                return json.dumps({'status':'OK'})
-            else:
-                return json.dumps({'status':'An Error occured'})
-        else:
-            return render_template('error.html',error = 'Unauthorized Access')
-    except Exception as e:
-        return json.dumps({'status':str(e)})
-    finally:
-        cursor.close()
-        conn.close()
+			if len(result) is 0:
+				conn.commit()
+				return json.dumps({'status': 'OK'})
+			else:
+				return json.dumps({'status': 'an error occured'})
+		else:
+			return render_template('error.html', error = 'Unauthorised Access')
+	except Exception as e:
+		return json.dumps({'status': str(e)})
+	finally: 
+		cursor.close()
+		conn.close()
 
 
 @app.route('/getWishById',methods=['POST'])

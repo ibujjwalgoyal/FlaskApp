@@ -41,7 +41,6 @@
         </div>
  
         <div class="jumbotron">
-            <h3>Click on any wish to edit</h3>
                 <div class="row">
                     <div class="col-md-12">
                  
@@ -52,7 +51,8 @@
                                     <li class="list-group-item">
                                         <div class="checkbox">
                                             <label id = "text-val">
-                                                ${Title}
+                                                <h4>${Title}</h4>
+                                                <h5>${Description}</h5>
                                             </label>
                                         </div>
                                         <div class="pull-right action-buttons">
@@ -66,6 +66,7 @@
                     </div>
                 </div>
         </div>
+        <!-- for edit and update popup -->
         <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -93,6 +94,21 @@
                 </div>
             </div>
         </div>
+        <!-- for delete popup -->
+        <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header" style="text-align:center;">
+                        <h4 class="modal-title" style="color:red;" id="deleteModalLabel">You are going to Delete this forever !!</h4>
+                    </div>
+         
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary">Delete</button>
+                    </div>
+                </div>
+            </div>
+</div>
  
         <footer class="footer">
             <p>&copy; Company 2015</p>
@@ -106,17 +122,17 @@
             url: '/getWish',
             type: 'GET',
             success: function(res) {
- 
+                
                 // Parse the JSON response
                 var wishObj = JSON.parse(res);
-                 
+                
                 // Append to the template
                 $('#listTemplate').tmpl(wishObj).appendTo('#ulist');
             },
             error: function(error) {
                 console.log(error);
             }
-        });
+        })
     }
 
     function Edit(elm){
@@ -131,6 +147,7 @@
                 $('#editTitle').val(wishResults[0]['Title']);
                 $('#editDescription').val(wishResults[0]['Description']);
                 $('#editModal').modal();
+
             },
             error: function(error){
                 console.log(error);
@@ -149,7 +166,6 @@
         success: function(res) {
             $('#editModal').modal('hide');
             // Re populate the grid
-            
         },
         error: function(error) {
             console.log(error);
